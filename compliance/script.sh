@@ -1,9 +1,4 @@
 #!/bin/bash
-NessusGroup=$1
-bucketname=$2
-trend_policy_id=$3
-servicehub=$4
-nessus_secret=$5
 
 ls -ld /home/packages #Check if packages directory already exists
 
@@ -15,64 +10,7 @@ else
 fi
 
 cd /home/packages
-
-ntplinecount=`sudo cat /etc/ntp.conf | grep 'server metadata.google.internal' -n -m 2 | tail -n 1 | cut -d: -f1`
-echo "Google's NTP server details located in line $ntplinecount "
-ntpdeleteafterline=$(($ntplinecount+1))
-echo "NTP records will be deleted from line number $ntpdeleteafterline "
-monitoring=`curl "http://metadata.google.internal/computeMetadata/v1/project/attributes/monitoringagent" -H "Metadata-Flavor: Google"`
-scaleft=`curl "http://metadata.google.internal/computeMetadata/v1/project/attributes/okta-asa" -H "Metadata-Flavor: Google"`
-project_attributes=`curl -s 'http://metadata.google.internal/computeMetadata/v1/project/attributes/' -H 'Metadata-Flavor: Google'`
-vm_attributes=`curl -s 'http://metadata.google.internal/computeMetadata/v1/instance/attributes/' -H 'Metadata-Flavor: Google'`
-if echo $project_attributes | grep -q 'nessus'; then
-  project_nessus=`curl "http://metadata.google.internal/computeMetadata/v1/project/attributes/nessus" -H "Metadata-Flavor: Google"`
-else
-  project_nessus="true"
-fi
-if echo $project_attributes | grep -q 'trendmicro'; then
-  project_trendmicro=`curl "http://metadata.google.internal/computeMetadata/v1/project/attributes/trendmicro" -H "Metadata-Flavor: Google"`
-else
-  project_trendmicro="true"
-fi
-
-get_project_attributes=($(curl -s 'http://metadata.google.internal/computeMetadata/v1/project/attributes/' -H 'Metadata-Flavor: Google'))
-if [[ " ${get_project_attributes[@]} " =~ " groupName " ]]; then
-    NessusGroup=$(curl -s "http://metadata.google.internal/computeMetadata/v1/project/attributes/groupName" -H "Metadata-Flavor: Google")
-else
-    echo Using old groupName
-fi
-
-if echo $vm_attributes | grep -q 'nessus'; then
-  vm_nessus=$(curl -s 'http://metadata.google.internal/computeMetadata/v1/instance/attributes/nessus' -H 'Metadata-Flavor: Google')
-else
-  vm_nessus="true"
-fi
-if echo $vm_attributes | grep -q 'trendmicro'; then
-  vm_trendmicro=$(curl -s 'http://metadata.google.internal/computeMetadata/v1/instance/attributes/trendmicro' -H 'Metadata-Flavor: Google')
-else
-  vm_trendmicro="true"
-fi
-
-if [ "$project_nessus" == "true" ] && [ "$vm_nessus" == "true" ]; then
-  nessus="true"
-  # Capture the Nessus Keys
-  # gsutil cp gs://$bucketname/SecurityAgentSecrets/nessusSecrets.enc /tmp/nessusSecrets.enc
-  # gcloud kms decrypt --location=global --keyring=$keyring --key=projects/$servicehub/locations/global/keyRings/$keyring/cryptoKeys/$nessuskmskey --ciphertext-file=/tmp/nessusSecrets.enc --plaintext-file=/tmp/nessusSecrets.txt
-  nessuskey=`gcloud secrets versions access latest --secret $nessus_secret --project $servicehub | cut -d : -f 2`
-  # rm -rf /tmp/nessusSecrets*
-else
-  nessus="false"
-fi
-
-if [ "$project_trendmicro" == "true" ] && [ "$vm_trendmicro" == "true" ]; then
-  trendmicro="true"
-else
-  trendmicro="false"
-fi
-
-if [ "$trend_policy_id" == "null" ]; then
-  trendmicro="false"
-fi
+nessuskey=`gcloud secrets versions access latest --secret $nessus_secret --project $servicehub | cut -d : -f 2`
 
 # Determine OS type first. This script is designed only to run on SuSE, CentOS, Red Hat and Ubuntu
 if grep -qi suse /etc/os-release; then
@@ -95,8 +33,7 @@ fi
 #Install agents for Centos OS
 if [ "$var" = "CentOS" ]; then
   echo "CentOS"
-  if [[ "$nessus" == "true" ]]; then
-    sudo /bin/systemctl status nessusagent.service #Check if Nessus agent is running
+      sudo /bin/systemctl status nessusagent.service #Check if Nessus agent is running
     if [ $? -eq 0 ]; then
       echo "----------------------------------------------------------------------------------------------------"
       echo "*********************Nessus agent is already running. Installation skipped *************************"
@@ -123,8 +60,6 @@ if [ "$var" = "CentOS" ]; then
       #     fi
       # done
     fi
-  else
-    echo "Nessus label is set false for the project or the VM, skipping agent installation"
   fi
 
   if [[ "$trendmicro" == "true" ]]; then

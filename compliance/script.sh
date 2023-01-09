@@ -33,11 +33,19 @@ fi
 #Install agents for Centos OS
 if [ "$var" = "CentOS" ]; then
   echo "CentOS"
-      sudo /bin/systemctl status nessusagent.service #Check if Nessus agent is running
-    if [ $? -eq 0 ]; then
+      STATUS="$(systemctl is-active tomcat.service)" 
+    
+    if [ "${STATUS}" = "active" ]; then
+     
       echo "----------------------------------------------------------------------------------------------------"
       echo "*********************Nessus agent is already running. Installation skipped *************************"
-      echo "----------------------------------------------------------------------------------------------------"
+      echo "------------------r----------------------------------------------------------------------------------"
+    
+    else if [ "${STATUS}" = "inactive" ]; then
+    
+       echo "*********************Start Nessus agent servcie*************************"
+       sudo /bin/systemctl start nessusagent.service
+    
     else
       gsutil cp gs://$bucketname/NessusAgent-8.3.1-es7.x86_64.rpm /home/packages
       echo "downloaded rpm package" > DownloadedRPMPackage
@@ -47,18 +55,6 @@ if [ "$var" = "CentOS" ]; then
       echo "Linked successfully" > LinkedNessus
       sudo /bin/systemctl start nessusagent.service
       sudo /bin/systemctl status nessusagent.service
-      # for i in {1..10}
-      # do
-      #     sudo /bin/systemctl status nessusagent.service
-      #     if [ $? -eq 0 ]; then
-      #         echo "Nessus agent started successfuly"
-      #         break
-      #     else
-      #         echo "Nessus agent failed to start, retrying to start"
-      #         sleep 2 # Waiting for 2 seconds
-      #         sudo /bin/systemctl start nessusagent.service
-      #     fi
-      # done
     fi
   fi
 
@@ -89,34 +85,6 @@ if [ "$var" = "CentOS" ]; then
     echo "Trendmicro label is set false for the project or the VM, skipping agent installation"
   fi
 
-	sudo /bin/systemctl status google-fluentd.service
-	if [ $? -eq 0 ]; then
-    echo "---------------------------------------------------------------------------------------------------"
-    echo "**************Stackdriver logging agent is already running. Installation skipped ***************************"
-    echo "----------------------------------------------------------------------------------------------------"
-	else
-	  curl -sSO https://dl.google.com/cloudagents/install-logging-agent.sh
-		sudo bash install-logging-agent.sh
-    echo "**************Stackdriver logging agent is installed successfully ***************************"
-    sleep 30s
-	fi
-
-  if [[ "$monitoring" == "true" ]]; then
-    sudo /bin/systemctl status stackdriver-agent
-    if [ $? -eq 0 ]; then
-      echo "---------------------------------------------------------------------------------------------------"
-      echo "**************Stackdriver monitoring agent is already running. Installation skipped ***************************"
-      echo "----------------------------------------------------------------------------------------------------"
-    else
-      curl -sSO https://dl.google.com/cloudagents/install-monitoring-agent.sh
-      sudo bash install-monitoring-agent.sh
-      echo "**************Stackdriver monitoring agent is installed successfully ***************************"
-      sleep 5s
-    fi
-  else
-    echo "Enable Stackdriver monitoring label is set to false. Installation skipped"
-  fi
-
   if [[ "$scaleft" == "true" ]]; then
     sudo /bin/systemctl status sftd
     if [ $? -eq 0 ]; then
@@ -138,18 +106,6 @@ if [ "$var" = "CentOS" ]; then
     echo "Okta ASA label is not set to true. Installation skipped."
   fi
 
-  sudo service ntpd restart
-  nolines=$(ntpq -p | wc -l)
-
-  if [[ nolines -gt 3 ]]; then
-    sudo sed $ntpdeleteafterline,$(($ntpdeleteafterline+2))'d' /etc/ntp.conf
-    #sudo sed -i '3,/server\ metadata/!d' /etc/ntp.conf
-    sudo service ntpd restart
-    sudo ntpq -p
-    echo "*************NTP server set to Google metadata server ***************************"
-  else
-    echo "*************NTP configuration file doesn't need to be changed***************************"
-  fi
 
 #Install agents for Ubuntu OS
 elif [ "$var" = "Ubuntu" ]; then

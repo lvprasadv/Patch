@@ -54,3 +54,4 @@ resource "google_compute_project_metadata_item" "osconfig_log_level_meta" {
   value      = "debug"
   depends_on = [google_project_service.osconfig_api]
 }
+#enable-guest-attributes as true

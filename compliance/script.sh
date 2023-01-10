@@ -1,5 +1,10 @@
 #!/bin/bash
 
+bucketname=""
+nessuskey=""
+NessusGroup=""
+
+
 ls -ld /home/packages #Check if packages directory already exists
 
 if [ $? -eq 0 ]; then
@@ -32,21 +37,46 @@ fi
 
 #Install agents for Centos OS
 if [ "$var" = "CentOS" ]; then
-  echo "CentOS"
-      STATUS="$(systemctl is-active tomcat.service)" 
+echo "CentOS"
+STATUS="$(systemctl is-active nessusagent.service)" 
+
+if [ "${STATUS}" = "active" ]; then
+
+    service nessusagent status | grep "active (running)"
+    if [ $? -eq 0 ]
+	then
+  	echo "Nessus Agent is Installed, State is running - Link Status Check Required "
+  	exit 1
+    else
+  	echo "Nessus Agent is Installed, State is stopped - Starting of the Agent and Link Status Check Required."
+	service nessusagent start
+	echo "Checking Agent Status and Linking Status..."
+	service nessusagent status | grep "running"
+         if [ $? -eq 0 ]
+             then
+              /opt/nessus_agent/sbin/nessuscli agent status | grep error
+  	      agentLinkStatus=$(echo $?)
+              /opt/nessus_agent/sbin/nessuscli agent status | grep warn
+              agentLinkStatusWarn=$(echo $?)
+              if [ $agentLinkStatusWarn -eq "0" ] || [ $agentLinkStatus -eq "0" ]
+              then
+               echo "Nessus Agent is not linked properly."
+               exit 1
+              else
+              echo "Nessus Agent is Linked properly."
+              exit 0
+              fi
+  	      exit 0
+	      fi
+       echo "Error during Nessus Agent Installation - Manual Intervention Needed"
+     exit 1
+ fi
     
-    if [ "${STATUS}" = "active" ]; then
-     
-      echo "----------------------------------------------------------------------------------------------------"
-      echo "*********************Nessus agent is already running. Installation skipped *************************"
-      echo "------------------r----------------------------------------------------------------------------------"
-    
-    else if [ "${STATUS}" = "inactive" ]; then
+    else [ "${STATUS}" = "inactive" ]; then
     
        echo "*********************Start Nessus agent servcie*************************"
        sudo /bin/systemctl start nessusagent.service
     
-    else
       gsutil cp gs://$bucketname/NessusAgent-8.3.1-es7.x86_64.rpm /home/packages
       echo "downloaded rpm package" > DownloadedRPMPackage
       rpm -ivh NessusAgent-8.3.1-es7.x86_64.rpm

@@ -120,3 +120,6 @@ resource "google_os_config_patch_deployment" "windows_patch_deployments" {
     }
   }
 }
+
+
+#windows post patch fix ocgsh-csv-lbk-admin/radius-post-patch.ps1 details

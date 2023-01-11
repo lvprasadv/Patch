@@ -45,6 +45,11 @@ resource "google_os_config_patch_deployment" "linux_patch_deployments" {
 
     yum {
       security = true
+      minimal = true
+    }
+    
+    apt {
+      type = "DIST"
     }
 
     zypper {
@@ -99,7 +104,7 @@ resource "google_os_config_patch_deployment" "windows_patch_deployments" {
     }
 
     time_of_day {
-      hours   = 10
+      hours   = 0
       minutes = 30
     }
 
@@ -110,15 +115,10 @@ resource "google_os_config_patch_deployment" "windows_patch_deployments" {
 
   patch_config {
 
-    yum {
-      security = true
+    windows_update {
+      classifications = ["CRITICAL", "SECURITY", "DEFINITION"]
     }
-
-    zypper {
-      categories = ["security", "recommended"]
-      severities = ["critical", "important"]
-    }
-
+    
     pre_step {
       windows_exec_step_config {
         interpreter = "POWERSHELL"

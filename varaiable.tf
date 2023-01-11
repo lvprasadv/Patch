@@ -3,12 +3,6 @@ variable "proj_id" {
   type        = list(string)
   default     = ["", "", ""]
 }
-
- variable "bucket_name" {
-   description = "Bucket where exe are placed"
-   type        = string
-}
-
  variable "bucket_name" {
    description = "Bucket where exe are placed"
    type        = string

@@ -16,24 +16,13 @@ resource "google_os_config_patch_deployment" "linux_patch_deployments" {
     }
   }
 
-    # For all VM instances Target all VM instances in the project. If true, no other criteria is permitted
-#   instance_filter {
-#    all = true
-#  }
-  
+
   duration = "12600s"
 
   recurring_schedule {
-    monthly {
-      week_day_of_month {
-        week_ordinal = 1
-        day_of_week  = "SATURDAY"
-      }
-    }
-
     time_of_day {
-      hours   = 10
-      minutes = 30
+      hours   = 0
+      minutes = 15
     }
 
     time_zone {
@@ -96,13 +85,6 @@ resource "google_os_config_patch_deployment" "windows_patch_deployments" {
   duration = "12600s"
 
   recurring_schedule {
-    monthly {
-      week_day_of_month {
-        week_ordinal = 1
-        day_of_week  = "SATURDAY"
-      }
-    }
-
     time_of_day {
       hours   = 0
       minutes = 30

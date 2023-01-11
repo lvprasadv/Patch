@@ -1,7 +1,7 @@
 ########## os patch scheduled deployments ################
 
 resource "google_os_config_patch_deployment" "linux_patch_deployments" {
-  patch_deployment_id = "oc-linux-monthly-patch"
+  patch_deployment_id = "oc-linux-daily-patch"
   
   count = length(data.google_project.project[*].project_id)
   project = data.google_project.project[count.index].project_id
@@ -67,7 +67,7 @@ resource "google_os_config_patch_deployment" "linux_patch_deployments" {
 }
 
 resource "google_os_config_patch_deployment" "windows_patch_deployments" {
-  patch_deployment_id = "oc-windows-monthly-patch"
+  patch_deployment_id = "oc-windows-daily-patch"
   
   count = length(data.google_project.project[*].project_id)
   project = data.google_project.project[count.index].project_id

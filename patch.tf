@@ -1,5 +1,6 @@
 ########### data block to fetch projects under specific folder id ###########
-
+## when both api and patch files are using data blocks are duplicate
+/* 
 data "google_projects" "folder-projects" {
   filter = "parent.id:994943896596 lifecycleState:ACTIVE"
 }
@@ -8,14 +9,14 @@ data "google_project" "project" {
     project_id = data.google_projects.folder-projects.projects[count.index].project_id
 }
 #this will be used for all active based on folder id, but this approach we are going for SM, POD teams spearately
-
+*/
   
 ########## os patch scheduled deployments ################
 
 resource "google_os_config_patch_deployment" "linux_patch_deployments" {
   patch_deployment_id = "oc-linux-daily-patch"
   
- count = length(data.google_project.project[*].project_id)   these are used for folder id based data block as above
+ count = length(data.google_project.project[*].project_id)   #these are used for folder id based data block as above
  project = data.google_project.project[count.index].project_id
 
  # count = "${length(var.proj_id)}"
@@ -86,7 +87,7 @@ resource "google_os_config_patch_deployment" "linux_patch_deployments" {
 resource "google_os_config_patch_deployment" "windows_patch_deployments" {
   patch_deployment_id = "oc-windows-daily-patch"
   
-  count = length(data.google_project.project[*].project_id)   these are used for folder id based data block as above
+  count = length(data.google_project.project[*].project_id)   #these are used for folder id based data block as above
   project = data.google_project.project[count.index].project_id
   
   #count = "${length(var.proj_id)}"

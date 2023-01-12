@@ -8,6 +8,12 @@ variable "proj_id" {
    type        = string
 }
 
+ variable "folder_id" {
+   description = "folder where projects are executed"
+   type        = string
+    default - ""
+}
+
  variable "gen_number_linux_presnapshot" {
    description = "Generation number of linux presnapshot available in GCS"
    type        = string

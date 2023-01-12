@@ -11,7 +11,7 @@ variable "proj_id" {
  variable "folder_id" {
    description = "folder where projects are executed"
    type        = string
-    default - ""
+    default = ""
 }
 
  variable "gen_number_linux_presnapshot" {

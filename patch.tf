@@ -11,7 +11,7 @@ resource "google_os_config_patch_deployment" "linux_patch_deployments" {
 
     group_labels {
       labels = {
-        os = "linux"
+        os_type = "linux"
       }
     }
   }
@@ -35,10 +35,12 @@ resource "google_os_config_patch_deployment" "linux_patch_deployments" {
     yum {
       security = true
       minimal = true
+      excludes = ["bash"]     
     }
     
     apt {
       type = "DIST"
+      excludes = ["python"]
     }
 
     zypper {
@@ -77,7 +79,7 @@ resource "google_os_config_patch_deployment" "windows_patch_deployments" {
 
     group_labels {
       labels = {
-        os = "windows"
+        os_type = "windows"
       }
     }
   }
@@ -98,7 +100,7 @@ resource "google_os_config_patch_deployment" "windows_patch_deployments" {
   patch_config {
 
     windows_update {
-      classifications = ["CRITICAL", "SECURITY", "DEFINITION"]
+      classifications = ["CRITICAL", "SECURITY", "DEFINITION", "UPDATE"]
     }
     
     pre_step {

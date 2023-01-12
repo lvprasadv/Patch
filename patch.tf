@@ -1,3 +1,15 @@
+########### data block to fetch projects under specific folder id ###########
+/*
+data "google_projects" "folder-projects" {
+  filter = "parent.id:614695899438 lifecycleState:ACTIVE"
+}
+data "google_project" "project" {
+    count = length(data.google_projects.folder-projects.projects)
+    project_id = data.google_projects.folder-projects.projects[count.index].project_id
+}
+#this will be used for all active based on folder id, but this approach we are going for SM, POD teams spearately
+*/
+  
 ########## os patch scheduled deployments ################
 
 resource "google_os_config_patch_deployment" "linux_patch_deployments" {

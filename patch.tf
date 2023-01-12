@@ -1,25 +1,25 @@
 ########### data block to fetch projects under specific folder id ###########
-/*
+
 data "google_projects" "folder-projects" {
-  filter = "parent.id:614695899438 lifecycleState:ACTIVE"
+  filter = "parent.id:994943896596 lifecycleState:ACTIVE"
 }
 data "google_project" "project" {
     count = length(data.google_projects.folder-projects.projects)
     project_id = data.google_projects.folder-projects.projects[count.index].project_id
 }
 #this will be used for all active based on folder id, but this approach we are going for SM, POD teams spearately
-*/
+
   
 ########## os patch scheduled deployments ################
 
 resource "google_os_config_patch_deployment" "linux_patch_deployments" {
   patch_deployment_id = "oc-linux-daily-patch"
   
- # count = length(data.google_project.project[*].project_id)   these are used for folder id based data block as above
- # project = data.google_project.project[count.index].project_id
+ count = length(data.google_project.project[*].project_id)   these are used for folder id based data block as above
+ project = data.google_project.project[count.index].project_id
 
-  count = "${length(var.proj_id)}"
-  project  = "${element(var.proj_id, count.index)}"
+ # count = "${length(var.proj_id)}"
+ # project  = "${element(var.proj_id, count.index)}"
   
   instance_filter {
     zones = ["us-east1-b", "us-central1-b", "us-central1-f", "us-central1-c", "us-central1-a", "us-east1-c", "us-east1-d", "us-east4-c", "us-east4-a", "us-west1-b", "us-west1-a"]
@@ -86,8 +86,11 @@ resource "google_os_config_patch_deployment" "linux_patch_deployments" {
 resource "google_os_config_patch_deployment" "windows_patch_deployments" {
   patch_deployment_id = "oc-windows-daily-patch"
   
-  count = "${length(var.proj_id)}"
-  project  = "${element(var.proj_id, count.index)}"
+  count = length(data.google_project.project[*].project_id)   these are used for folder id based data block as above
+  project = data.google_project.project[count.index].project_id
+  
+  #count = "${length(var.proj_id)}"
+  #project  = "${element(var.proj_id, count.index)}"
 
   instance_filter {
     zones = ["us-east1-b", "us-central1-b", "us-central1-f", "us-central1-c", "us-central1-a", "us-east1-c", "us-east1-d", "us-east4-c", "us-east4-a", "us-west1-b", "us-west1-a"]

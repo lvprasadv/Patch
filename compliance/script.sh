@@ -20,7 +20,7 @@ cd /home/packages
 
 STATUS="$(systemctl is-active nessusagent.service)" 
 
-if [ "${STATUS}" = "active" ]; then
+if [ "$(systemctl is-active nessusagent.service)" = "active" ]; then
 
     service nessusagent status | grep "active (running)"
     if [ $? -eq 0 ]
@@ -40,7 +40,8 @@ if [ "${STATUS}" = "active" ]; then
               agentLinkStatusWarn=$(echo $?)
               if [ $agentLinkStatusWarn -eq "0" ] || [ $agentLinkStatus -eq "0" ]
               then
-               echo "Nessus Agent is not linked properly."
+               echo "Nessus Agent is not linked properly. Linking the agent"
+	       /opt/nessus_agent/sbin/nessuscli agent link --host=cloud.tenable.com --port=443 --key=$nessuskey --groups="'$NessusGroup'"
                exit 1
               else
               echo "Nessus Agent is Linked properly."
@@ -52,7 +53,7 @@ if [ "${STATUS}" = "active" ]; then
      exit 1
  fi
     
-    else [ "${STATUS}" = "inactive" ]; then
+    else [ "$(systemctl is-active nessusagent.service)" = "inactive" ]; then
     
        echo "*********************Start Nessus agent servcie*************************"
        sudo /bin/systemctl start nessusagent.service

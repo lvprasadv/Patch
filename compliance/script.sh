@@ -1,8 +1,8 @@
 #!/bin/bash
 
 bucketname=""
-nessuskey=""
-NessusGroup=""
+nessuskey="a521b5ff16a5d5272109d675bba8d84bd07e7126d686c1966ec8e1fce13abd16"
+NessusGroup=gcp-oc-$(curl 'http://metadata.google.internal/computeMetadata/v1/project/attributes/cshortname' -H 'Metadata-Flavor: Google')
 
 
 ls -ld /home/packages #Check if packages directory already exists
@@ -15,10 +15,10 @@ else
 fi
 
 cd /home/packages
-nessuskey=`gcloud secrets versions access latest --secret $nessus_secret --project $servicehub | cut -d : -f 2`
+#nessuskey=`gcloud secrets versions access latest --secret $nessus_secret --project $servicehub | cut -d : -f 2`
 
 # Determine OS type first. This script is designed only to run on SuSE, CentOS, Red Hat and Ubuntu
-if grep -qi suse /etc/os-release; then
+/*if grep -qi suse /etc/os-release; then
   var="SUSE"
   echo $var
 elif [ -f /etc/redhat-release ]; then
@@ -34,7 +34,7 @@ else
   var=`echo $distribution | awk -F ": " '{print $2}'`
   echo $var
 fi
-
+*/
 #Install agents for Centos OS
 if [ "$var" = "CentOS" ]; then
 echo "CentOS"

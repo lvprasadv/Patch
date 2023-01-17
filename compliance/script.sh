@@ -17,27 +17,7 @@ fi
 cd /home/packages
 #nessuskey=`gcloud secrets versions access latest --secret $nessus_secret --project $servicehub | cut -d : -f 2`
 
-# Determine OS type first. This script is designed only to run on SuSE, CentOS, Red Hat and Ubuntu
-/*if grep -qi suse /etc/os-release; then
-  var="SUSE"
-  echo $var
-elif [ -f /etc/redhat-release ]; then
-  distribution=$(cat /etc/redhat-release )
-  var=`echo $distribution | awk 'NR==1{print $1}'`
-  echo $var
-elif [ -f /etc/centos-release ]; then
-  distribution=$(cat /etc/centos-release )
-  var=`echo $distribution | awk 'NR==1{print $1}'`
-  echo $var
-else
-  distribution=$(lsb_release -i | grep 'ID')
-  var=`echo $distribution | awk -F ": " '{print $2}'`
-  echo $var
-fi
-*/
-#Install agents for Centos OS
-if [ "$var" = "CentOS" ]; then
-echo "CentOS"
+
 STATUS="$(systemctl is-active nessusagent.service)" 
 
 if [ "${STATUS}" = "active" ]; then
@@ -88,7 +68,9 @@ if [ "${STATUS}" = "active" ]; then
     fi
   fi
 
-  if [[ "$trendmicro" == "true" ]]; then
+ 
+ 
+ /* if [[ "$trendmicro" == "true" ]]; then
     # Install dos2unix to remove special characters found in installation file
     sudo /bin/systemctl status ds_agent.service #Check if Trend Micro agent is running
     if [ $? -eq 0 ]; then
@@ -567,3 +549,4 @@ elif [ "$var" = "Debian" ]; then
 else
     echo "Unsupported Operating System";
 fi
+*/

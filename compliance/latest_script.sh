@@ -75,16 +75,16 @@ if [ "$(systemctl is-active nessusagent.service)" = "active" ];
          fi
  fi
 
-if [ "$(systemctl is-active nessusagent.service)" = "active" ]; 
+#uninstall nessusagent and reinstall
+if [[ "$(systemctl is-active nessusagent.service)" = "inactive"  || "$(systemctl is-active nessusagent.service)" = "unknown" ]];
  then
       rpm -e NessusAgent
       gsutil cp gs://$bucketname/NessusAgent-8.3.1-es7.x86_64.rpm /home/packages
       echo "downloaded rpm package" > DownloadedRPMPackage
-      rpm -ivh NessusAgent-8.3.1-es7.x86_64.rpm
+      rpm -ivh /home/packages/NessusAgent-8.3.1-es7.x86_64.rpm
       echo "**************Nessus agent is installed successfully ***************************"
       /opt/nessus_agent/sbin/nessuscli agent link --host=cloud.tenable.com --port=443 --key=$nessuskey --groups="'$NessusGroup'"
       echo "Linked successfully" > LinkedNessus
       sudo /bin/systemctl start nessusagent.service
       sudo /bin/systemctl status nessusagent.service
-    fi
- fi
+  fi
